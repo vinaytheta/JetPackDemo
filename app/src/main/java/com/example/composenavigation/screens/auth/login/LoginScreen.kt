@@ -1,5 +1,6 @@
 package com.example.composenavigation.screens.auth.login
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -21,6 +22,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -33,7 +36,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.composenavigation.R
 import com.example.composenavigation.components.AuthHeader
 import com.example.composenavigation.components.TextFieldWithError
-import com.example.composenavigation.navigation.BottomBarScreen
 import com.example.composenavigation.navigation.graphs.AuthScreen
 import com.example.composenavigation.navigation.graphs.Graph
 import com.example.composenavigation.navigation.navigateTo
@@ -44,6 +46,9 @@ fun LoginScreen(
     navController: NavController = rememberNavController(),
     viewModel: LoginViewModel = hiltViewModel()
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
+
     LogInUi(navController = navController,
         email = viewModel.emailState.text,
         emailError = viewModel.emailState.error,
@@ -56,20 +61,22 @@ fun LoginScreen(
         onPasswordChanged = {
             viewModel.onPasswordChange(it)
             viewModel.passwordState.validate()
-        },
-        onLogInClick = {
-            viewModel.signInWithEmailAndPassword {
-                /*navigateTo(
-                    navController, Graph.HOME, clearBackStack = true
-                )*/
-                navController.navigate(Graph.HOME) {
-                    popUpTo(Graph.AUTHENTICATION) {
-                        inclusive = true
-                    }
-                    launchSingleTop = true
-                }
+        }
+    ) {
+        viewModel.userStatus.observe(lifecycleOwner) { status ->
+            status?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
-        })
+        }
+        viewModel.signInWithEmailAndPassword {
+            navController.navigate(Graph.HOME) {
+                popUpTo(Graph.AUTHENTICATION) {
+                    inclusive = true
+                }
+                launchSingleTop = true
+            }
+        }
+    }
 }
 
 @Composable

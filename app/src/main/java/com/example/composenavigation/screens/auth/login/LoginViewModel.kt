@@ -1,6 +1,8 @@
 package com.example.composenavigation.screens.auth.login
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.composenavigation.utils.EmailState
@@ -10,12 +12,17 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
+
 class LoginViewModel : ViewModel() {
+
     private val _emailState = EmailState()
     val emailState: EmailState = _emailState
 
     private val _passwordState = PasswordState()
     val passwordState: PasswordState = _passwordState
+
+    private var _userStatus = MutableLiveData<String?>()
+    val userStatus : LiveData<String?> = _userStatus
 
     fun onEmailChange(email: String) {
         _emailState.text = email
@@ -40,9 +47,10 @@ class LoginViewModel : ViewModel() {
                                 try {
                                     Log.d("TAGMain", "signInWithEmailAndPassword: ${task.result}")
                                 } catch (ex: Exception) {
+                                    _userStatus.value = "User does not exist please Sign up"
                                     Log.d(
                                         "TAGMain",
-                                        "signInWithEmailAndPassword:${ex.localizedMessage} "
+                                        "signInWithEmailAndPasswordException:${ex.localizedMessage} "
                                     )
                                 }
 
