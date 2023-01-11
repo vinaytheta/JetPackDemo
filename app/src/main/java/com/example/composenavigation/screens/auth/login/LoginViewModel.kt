@@ -27,7 +27,7 @@ class LoginViewModel : ViewModel() {
 
     private val auth: FirebaseAuth = Firebase.auth
 
-    fun signInWithEmailAndPassword(home: () -> Unit) {
+    fun signInWithEmailAndPassword(navigateToHome: () -> Unit) {
         if (validateInputs()) {
             viewModelScope.launch {
                 try {
@@ -35,7 +35,7 @@ class LoginViewModel : ViewModel() {
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
                                 Log.d("TAGMain", "signInWithEmailAndPassword: ${task.result}")
-                                home()
+                                navigateToHome()
                             } else {
                                 try {
                                     Log.d("TAGMain", "signInWithEmailAndPassword: ${task.result}")

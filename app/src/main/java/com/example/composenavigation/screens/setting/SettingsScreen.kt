@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.composenavigation.navigation.graphs.AuthScreen
 import com.example.composenavigation.navigation.graphs.Graph
-import com.example.composenavigation.navigation.navigateTo
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -34,11 +34,12 @@ fun SettingsScreen(navController: NavController) {
                 colors = ButtonDefaults.buttonColors(contentColor = Color.Gray),
                 onClick = {
                     FirebaseAuth.getInstance().signOut()
-                    navigateTo(
-                        navController = navController,
-                        Graph.AUTHENTICATION,
-                        true
-                    )
+                    navController.navigate(AuthScreen.Login.route) {
+                        popUpTo(Graph.HOME) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
                 }) {
                 Text(
                     text = "Sign Out",

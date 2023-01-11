@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.composenavigation.navigation.graphs.AuthScreen
 import com.example.composenavigation.navigation.graphs.Graph
-import com.example.composenavigation.navigation.navigateTo
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
@@ -38,11 +37,15 @@ fun SplashScreen(navController: NavController) {
                 easing = { OvershootInterpolator(4f).getInterpolation(it) })
         )
         delay(2000L)
-        navigateTo(
-            navController = navController,
-            destination = if (FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()) AuthScreen.Login.route else Graph.HOME,
-            clearBackStack = true
-        )
+
+        val destination =
+            if (FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()) Graph.AUTHENTICATION else Graph.HOME
+        navController.navigate(destination) {
+            popUpTo(AuthScreen.Splash.route) {
+                inclusive = true
+            }
+            launchSingleTop = true
+        }
     }
 
     Box(

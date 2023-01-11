@@ -7,6 +7,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -32,12 +33,56 @@ import androidx.navigation.compose.rememberNavController
 import com.example.composenavigation.R
 import com.example.composenavigation.components.AuthHeader
 import com.example.composenavigation.components.TextFieldWithError
+import com.example.composenavigation.navigation.BottomBarScreen
 import com.example.composenavigation.navigation.graphs.AuthScreen
 import com.example.composenavigation.navigation.graphs.Graph
 import com.example.composenavigation.navigation.navigateTo
+import com.example.composenavigation.ui.theme.ComposeNavigationTheme
 
 @Composable
-fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
+fun LoginScreen(
+    navController: NavController = rememberNavController(),
+    viewModel: LoginViewModel = hiltViewModel()
+) {
+    LogInUi(navController = navController,
+        email = viewModel.emailState.text,
+        emailError = viewModel.emailState.error,
+        password = viewModel.passwordState.text,
+        passwordError = viewModel.passwordState.error,
+        onEmailChanged = {
+            viewModel.onEmailChange(it)
+            viewModel.emailState.validate()
+        },
+        onPasswordChanged = {
+            viewModel.onPasswordChange(it)
+            viewModel.passwordState.validate()
+        },
+        onLogInClick = {
+            viewModel.signInWithEmailAndPassword {
+                /*navigateTo(
+                    navController, Graph.HOME, clearBackStack = true
+                )*/
+                navController.navigate(Graph.HOME) {
+                    popUpTo(Graph.AUTHENTICATION) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
+            }
+        })
+}
+
+@Composable
+fun LogInUi(
+    navController: NavController = rememberNavController(),
+    email: String = "email",
+    emailError: String? = null,
+    onEmailChanged: (String) -> Unit = {},
+    password: String = "Password",
+    passwordError: String? = null,
+    onPasswordChanged: (String) -> Unit = {},
+    onLogInClick: () -> Unit = {},
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -49,8 +94,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
         Column(modifier = Modifier.fillMaxSize()) {
 
             AuthHeader(
-                title = "Welcome Back,",
-                painterResource = R.drawable.bg_login_head
+                title = "Log in", painterResource = R.drawable.bg_login_head
             )
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -58,8 +102,9 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 20.dp, start = 40.dp,
-                        end = 40.dp, bottom = 60.dp),
+                    .padding(
+                        top = 20.dp, start = 40.dp, end = 40.dp, bottom = 60.dp
+                    ),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -70,28 +115,22 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
 
                 TextFieldWithError(
                     label = "Email",
-                    value = viewModel.emailState.text,
+                    value = email,
                     keyboardType = KeyboardType.Email,
-                    isError = viewModel.emailState.error != null,
-                    errorMessage = viewModel.emailState.error,
-                    onValueChange = {
-                        viewModel.onEmailChange(it)
-                        viewModel.emailState.validate()
-                    }
+                    isError = emailError != null,
+                    errorMessage = emailError,
+                    onValueChange = onEmailChanged
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
 
                 TextFieldWithError(
                     label = "Password",
-                    value = viewModel.passwordState.text,
+                    value = password,
                     keyboardType = KeyboardType.Password,
-                    isError = viewModel.passwordState.error != null,
-                    errorMessage = viewModel.passwordState.error,
-                    onValueChange = {
-                        viewModel.onPasswordChange(it)
-                        viewModel.passwordState.validate()
-                    },
+                    isError = passwordError != null,
+                    errorMessage = passwordError,
+                    onValueChange = onPasswordChanged,
                     trailingIcon = {
                         val eyeIcon = if (passwordVisible.value) Icons.Filled.Visibility
                         else Icons.Filled.VisibilityOff
@@ -107,46 +146,43 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    ClickableText(modifier = Modifier
-                        .align(Alignment.CenterEnd),
+                Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.End) {
+
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(contentColor = Color.Gray),
+                        onClick = onLogInClick,
+                    ) {
+                        Text(
+                            text = "Log in", color = Color.Black
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(5.dp))
+
+                    ClickableText(
                         style = TextStyle(color = Color.Black),
                         text = AnnotatedString(text = "Forgot Password?"),
                         onClick = {
-                            navigateTo(navController, AuthScreen.Forgot.route, false)
+                            navigateTo(navController, AuthScreen.Forgot.route, true)
                         })
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    Button(modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(contentColor = Color.Gray),
-                        onClick = {
-                            viewModel.signInWithEmailAndPassword {
-                                navigateTo(
-                                    navController,
-                                    Graph.HOME,
-                                    clearBackStack = true
-                                )
-                            }
-                        }) {
-                        Text(
-                            text = "Log in",
-                            color = Color.Black
-                        )
-                    }
                 }
             }
         }
         val annotatedText = buildAnnotatedString {
-            withStyle(style =
-            SpanStyle(color = Color.Gray)) { append("Don't have account? ") }
+            withStyle(
+                style = SpanStyle(color = Color.Gray)
+            ) { append("Don't have account? ") }
 
             pushStringAnnotation(
                 tag = "SignUp", // provide tag which will then be provided when you click the text
                 annotation = "SignUp"
             )
 
-            withStyle(style =
-            SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+            withStyle(
+                style = SpanStyle(color = MaterialTheme.colorScheme.primary)
+            ) {
                 append("Sign Up")
             }
 
@@ -171,5 +207,9 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
 @Preview
 @Composable
 fun LogInPreview() {
-    LoginScreen(navController = rememberNavController(), hiltViewModel())
+    ComposeNavigationTheme {
+        Surface {
+            LogInUi()
+        }
+    }
 }
