@@ -1,6 +1,6 @@
 package com.example.composenavigation.model
 
-data class MoviesResponseItem(
+data class QuestionItem(
     val answer: String,
     val category: String,
     val choices: List<String>,

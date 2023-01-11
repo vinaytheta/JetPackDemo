@@ -46,7 +46,18 @@ class SignUpViewModel : ViewModel() {
                             if (task.isSuccessful) {
                                 home()
                             } else {
-                                Log.d("TAGMain", "createUserWithEmailAndPassword: ${task.result}")
+                                try {
+                                    Log.d(
+                                        "TAGMain",
+                                        "createUserWithEmailAndPassword: ${task.result}"
+                                    )
+                                } catch (ex: Exception) {
+                                    Log.d(
+                                        "TAGMain",
+                                        "createUserWithEmailAndPassword: ${ex.localizedMessage}"
+                                    )
+                                }
+
                             }
                         }
                 } catch (ex: Exception) {
