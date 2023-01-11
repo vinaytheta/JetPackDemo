@@ -23,7 +23,8 @@ fun HomeNavGraph(navController: NavHostController) {
           ProfileScreen()
         }
         composable(route = BottomBarScreen.Settings.route) {
-         SettingsScreen()
+         SettingsScreen(navController = navController)
         }
+        authNavGraph(navController = navController)
     }
 }

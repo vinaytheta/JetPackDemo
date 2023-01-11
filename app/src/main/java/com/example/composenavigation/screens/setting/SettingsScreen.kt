@@ -1,28 +1,51 @@
 package com.example.composenavigation.screens.setting
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Surface
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.composenavigation.navigation.graphs.Graph
+import com.example.composenavigation.navigation.navigateTo
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(navController: NavController) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
     ) {
         Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(text = "Setting Screen", fontSize = 22.sp)
+            Button(modifier = Modifier
+                .fillMaxWidth()
+                .padding(40.dp),
+                colors = ButtonDefaults.buttonColors(contentColor = Color.Gray),
+                onClick = {
+                    FirebaseAuth.getInstance().signOut()
+                    navigateTo(
+                        navController = navController,
+                        Graph.AUTHENTICATION,
+                        true
+                    )
+                }) {
+                Text(
+                    text = "Sign Out",
+                    color = Color.Black
+                )
+            }
+
         }
     }
 }

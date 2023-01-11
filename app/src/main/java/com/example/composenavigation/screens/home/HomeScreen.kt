@@ -19,7 +19,18 @@ fun BottomHomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
     val questions = viewModel.data.value.data?.toMutableList()
 
     if (viewModel.data.value.loading == true) {
-        CircularProgressIndicator()
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
     } else {
 
         if (questions != null) {

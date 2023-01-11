@@ -5,15 +5,18 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.composenavigation.navigation.BottomNavigation
+import com.example.composenavigation.screens.SplashScreen
 
 @Composable
 fun RootNavigationGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
         route = Graph.ROOT,
-        startDestination = Graph.AUTHENTICATION
+        startDestination = AuthScreen.Splash.route
     ) {
-
+        composable(route = AuthScreen.Splash.route) {
+            SplashScreen(navController = navController)
+        }
         authNavGraph(navController = navController)
         composable(route = Graph.HOME) {
             BottomNavigation()

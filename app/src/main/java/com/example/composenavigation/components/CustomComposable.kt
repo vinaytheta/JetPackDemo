@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.composenavigation.navigation.graphs.Graph
+import com.example.composenavigation.navigation.navigateTo
 
 @Composable
 fun AuthHeader(title: String, painterResource: Int) {
