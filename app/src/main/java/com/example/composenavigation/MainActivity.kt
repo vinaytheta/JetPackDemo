@@ -25,7 +25,6 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
                     RootNavigationGraph(navController = rememberNavController())
-//                    SplashScreen(navController = rememberNavController())
                 }
             }
         }

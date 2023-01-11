@@ -60,7 +60,7 @@ fun TextFieldWithError(
     isError: Boolean = false,
     errorMessage: String? = "",
     onValueChange: (String) -> Unit,
-    trailingIcon: @Composable() (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
     Column {

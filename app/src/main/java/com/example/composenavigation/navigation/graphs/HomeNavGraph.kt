@@ -1,14 +1,13 @@
 package com.example.composenavigation.navigation.graphs
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
-import com.example.composenavigation.BottomBarScreen
-import com.example.composenavigation.screens.ScreenContent
+import com.example.composenavigation.navigation.BottomBarScreen
 import com.example.composenavigation.screens.home.BottomHomeScreen
+import com.example.composenavigation.screens.profile.ProfileScreen
+import com.example.composenavigation.screens.setting.SettingsScreen
 
 @Composable
 fun HomeNavGraph(navController: NavHostController) {
@@ -21,43 +20,10 @@ fun HomeNavGraph(navController: NavHostController) {
             BottomHomeScreen()
         }
         composable(route = BottomBarScreen.Profile.route) {
-            ScreenContent(
-                name = BottomBarScreen.Profile.route,
-                onClick = { }
-            )
+          ProfileScreen()
         }
         composable(route = BottomBarScreen.Settings.route) {
-            ScreenContent(
-                name = BottomBarScreen.Settings.route,
-                onClick = { }
-            )
-        }
-        detailsNavGraph(navController = navController)
-    }
-}
-
-fun NavGraphBuilder.detailsNavGraph(navController: NavHostController) {
-    navigation(
-        route = Graph.DETAILS,
-        startDestination = DetailsScreen.Information.route
-    ) {
-        composable(route = DetailsScreen.Information.route) {
-            ScreenContent(name = DetailsScreen.Information.route) {
-                navController.navigate(DetailsScreen.Overview.route)
-            }
-        }
-        composable(route = DetailsScreen.Overview.route) {
-            ScreenContent(name = DetailsScreen.Overview.route) {
-                navController.popBackStack(
-                    route = DetailsScreen.Information.route,
-                    inclusive = false
-                )
-            }
+         SettingsScreen()
         }
     }
-}
-
-sealed class DetailsScreen(val route: String) {
-    object Information : DetailsScreen(route = "INFORMATION")
-    object Overview : DetailsScreen(route = "OVERVIEW")
 }

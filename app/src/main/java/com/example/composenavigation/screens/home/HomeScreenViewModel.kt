@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class BottomHomeScreenViewModel @Inject constructor(
+class HomeScreenViewModel @Inject constructor(
     private val questionRepository: QuestionRepository
 ) : ViewModel() {
     val data: MutableState<DataOrException<ArrayList<QuestionItem>, Boolean, Exception>> =
