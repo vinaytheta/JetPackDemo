@@ -1,11 +1,16 @@
 package com.example.composenavigation.screens.auth.signup
 
+import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.widget.Toast
-import androidx.compose.foundation.background
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -15,8 +20,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
@@ -24,21 +31,82 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.composenavigation.R
 import com.example.composenavigation.components.AuthHeader
 import com.example.composenavigation.components.TextFieldWithError
 import com.example.composenavigation.navigation.graphs.Graph
-import com.example.composenavigation.navigation.navigateTo
 
 @Composable
 fun SignUpScreen(
-    navController: NavController,
-    viewModel: SignUpViewModel = hiltViewModel()
+    navController: NavController, viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+
+    val myImage: Bitmap? =
+        BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.ic_person)
+    val result = remember {
+        mutableStateOf<Bitmap?>(myImage)
+    }
+    val loadImage =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
+            result.value = it
+        }
+
+
+    SignUpUi(navController = navController,
+        email = viewModel.emailState.text,
+        emailError = viewModel.emailState.error,
+        password = viewModel.passwordState.text,
+        passwordError = viewModel.passwordState.error,
+        onEmailChanged = {
+            viewModel.onEmailChange(it)
+            viewModel.emailState.validate()
+        },
+        onPasswordChanged = {
+            viewModel.onPasswordChange(it)
+            viewModel.passwordState.validate()
+        },
+        confirmPassword = viewModel.confirmPasswordState.text,
+        onConfirmPasswordChanged = {
+            viewModel.onConfirmPasswordChange(it)
+            viewModel.confirmPasswordState.validate()
+        },
+        onProfileImageClick = {
+            loadImage.launch()
+        }) {
+
+        viewModel.createUserWithEmailAndPassword({
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        }) {
+            navController.navigate(Graph.HOME) {
+                popUpTo(Graph.AUTHENTICATION) {
+                    inclusive = true
+                }
+                launchSingleTop = true
+            }
+        }
+    }
+}
+
+@Composable
+fun SignUpUi(
+    navController: NavController = rememberNavController(),
+    email: String = "email",
+    emailError: String? = null,
+    onEmailChanged: (String) -> Unit = {},
+    password: String = "Password",
+    passwordError: String? = null,
+    onPasswordChanged: (String) -> Unit = {},
+    confirmPassword: String = "Password",
+    onConfirmPasswordChanged: (String) -> Unit = {},
+    onProfileImageClick: () -> Unit = {},
+    onSignUpClick: () -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -50,18 +118,27 @@ fun SignUpScreen(
         Column(modifier = Modifier.fillMaxSize()) {
 
             AuthHeader(
-                title = "Create account,",
-                painterResource = R.drawable.bg_login_header
+                title = "Create account", painterResource = R.drawable.bg_login_header
             )
 
             Spacer(modifier = Modifier.height(40.dp))
 
+            Image(painter = painterResource(id = R.drawable.ic_person),
+                contentDescription = "user_image",
+                modifier = Modifier
+                    .clip(RoundedCornerShape(10.dp))
+                    .height(100.dp)
+                    .width(100.dp)
+                    .background(color = Color.DarkGray)
+                    .align(alignment = Alignment.CenterHorizontally)
+                    .clickable {
+                        onProfileImageClick()
+                    })
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(
-                        top = 20.dp, start = 40.dp,
-                        end = 40.dp, bottom = 60.dp
+                        top = 20.dp, start = 40.dp, end = 40.dp, bottom = 60.dp
                     ),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -74,33 +151,27 @@ fun SignUpScreen(
                     mutableStateOf(false)
                 }
 
-
                 Spacer(modifier = Modifier.height(20.dp))
 
                 TextFieldWithError(
                     label = "Email",
-                    value = viewModel.emailState.text,
-                    keyboardType = KeyboardType.Email, imeAction = ImeAction.Next,
-                    isError = viewModel.emailState.error != null,
-                    errorMessage = viewModel.emailState.error,
-                    onValueChange = {
-                        viewModel.onEmailChange(it)
-                        viewModel.emailState.validate()
-                    }
+                    value = email,
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next,
+                    isError = emailError != null,
+                    errorMessage = emailError,
+                    onValueChange = onEmailChanged
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
 
                 TextFieldWithError(
                     label = "Password",
-                    value = viewModel.passwordState.text,
+                    value = password,
                     keyboardType = KeyboardType.Password, imeAction = ImeAction.Next,
-                    isError = viewModel.passwordState.error != null,
-                    errorMessage = viewModel.passwordState.error,
-                    onValueChange = {
-                        viewModel.onPasswordChange(it)
-                        viewModel.passwordState.validate()
-                    },
+                    isError = passwordError != null,
+                    errorMessage = passwordError,
+                    onValueChange = onPasswordChanged,
                     trailingIcon = {
                         val eyeIcon = if (passwordVisible.value) Icons.Filled.Visibility
                         else Icons.Filled.VisibilityOff
@@ -118,15 +189,12 @@ fun SignUpScreen(
 
                 TextFieldWithError(
                     label = "Confirm Password",
-                    value = viewModel.confirmPasswordState.text,
+                    value = confirmPassword,
                     keyboardType = KeyboardType.Password,
-                    isError = viewModel.confirmPasswordState.error != null,
-                    errorMessage = viewModel.confirmPasswordState.error,
+                    isError = passwordError != null,
+                    errorMessage = passwordError,
                     imeAction = ImeAction.Done,
-                    onValueChange = {
-                        viewModel.onConfirmPasswordChange(it)
-                        viewModel.confirmPasswordState.validate()
-                    },
+                    onValueChange = onConfirmPasswordChanged,
                     trailingIcon = {
                         val eyeIcon = if (confirmPasswordVisible.value) Icons.Filled.Visibility
                         else Icons.Filled.VisibilityOff
@@ -144,22 +212,13 @@ fun SignUpScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                Button(modifier = Modifier.fillMaxWidth(),
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(Color.DarkGray),
-                    onClick = {
-                        viewModel.createUserWithEmailAndPassword({ toastText ->
-                            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
-                        }) {
-                            navigateTo(
-                                navController,
-                                Graph.HOME,
-                                clearBackStack = true
-                            )
-                        }
-                    }) {
+                    onClick = onSignUpClick
+                ) {
                     Text(
-                        text = "Sign up",
-                        color = Color.White
+                        text = "Sign up", color = Color.White
                     )
                 }
             }
@@ -167,18 +226,15 @@ fun SignUpScreen(
 
         val annotatedText = buildAnnotatedString {
             withStyle(
-                style =
-                SpanStyle(color = Color.Gray)
+                style = SpanStyle(color = Color.Gray)
             ) { append("Already have account? ") }
 
             pushStringAnnotation(
-                tag = "Login",
-                annotation = "Login"
+                tag = "Login", annotation = "Login"
             )
 
             withStyle(
-                style =
-                SpanStyle(color = MaterialTheme.colorScheme.primary)
+                style = SpanStyle(color = MaterialTheme.colorScheme.primary)
             ) {
                 append("Login")
             }
@@ -199,4 +255,10 @@ fun SignUpScreen(
                 }
             })
     }
+}
+
+@Preview
+@Composable
+fun SignUpUiPreview() {
+    SignUpUi()
 }

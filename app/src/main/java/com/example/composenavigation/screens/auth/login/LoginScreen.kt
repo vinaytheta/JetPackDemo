@@ -89,6 +89,7 @@ fun LogInUi(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .imePadding()
             .verticalScroll(rememberScrollState())
             .background(
                 Color.Cyan
