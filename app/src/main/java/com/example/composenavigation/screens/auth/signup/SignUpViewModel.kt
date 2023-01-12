@@ -1,6 +1,8 @@
 package com.example.composenavigation.screens.auth.signup
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.composenavigation.utils.EmailState
@@ -37,14 +39,14 @@ class SignUpViewModel : ViewModel() {
         _confirmPasswordState.text = password
     }
 
-    fun createUserWithEmailAndPassword(home: () -> Unit) {
+    fun createUserWithEmailAndPassword(exceptionToast: (String?) -> Unit, navigateToHome: () -> Unit) {
         if (validateInputs()) {
             viewModelScope.launch {
                 try {
                     auth.createUserWithEmailAndPassword(emailState.text, passwordState.text)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
-                                home()
+                                navigateToHome()
                             } else {
                                 try {
                                     Log.d(
@@ -52,8 +54,9 @@ class SignUpViewModel : ViewModel() {
                                         "createUserWithEmailAndPassword: ${task.result}"
                                     )
                                 } catch (ex: Exception) {
+                                    exceptionToast("User already exists")
                                     Log.d(
-                                        "TAGMain",
+                                        "TAGMainSignUpException",
                                         "createUserWithEmailAndPassword: ${ex.localizedMessage}"
                                     )
                                 }

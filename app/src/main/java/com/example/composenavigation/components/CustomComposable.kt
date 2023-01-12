@@ -17,11 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.example.composenavigation.navigation.graphs.Graph
-import com.example.composenavigation.navigation.navigateTo
 
 @Composable
 fun AuthHeader(title: String, painterResource: Int) {
@@ -36,7 +35,7 @@ fun AuthHeader(title: String, painterResource: Int) {
                     bottomEnd = CornerSize(90.dp)
                 )
             )
-            .background(MaterialTheme.colors.secondaryVariant)
+            .background(Color.DarkGray)
     ) {
         Image(
             modifier = Modifier
@@ -48,7 +47,7 @@ fun AuthHeader(title: String, painterResource: Int) {
         Text(
             modifier = Modifier.padding(8.dp),
             text = title,
-            color = Color.Black,
+            color = Color.White,
             style = MaterialTheme.typography.h4
         )
     }
@@ -61,7 +60,7 @@ fun TextFieldWithError(
     keyboardType: KeyboardType,
     isError: Boolean = false,
     errorMessage: String? = "",
-    onValueChange: (String) -> Unit,
+    onValueChange: (String) -> Unit, imeAction: ImeAction,
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
@@ -72,7 +71,7 @@ fun TextFieldWithError(
             value = value,
             onValueChange = { onValueChange(it) },
             isError = isError,
-            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType).copy(imeAction = imeAction),
             colors = TextFieldDefaults.textFieldColors(
                 Color.DarkGray
             ),

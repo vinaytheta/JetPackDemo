@@ -17,8 +17,15 @@ private fun emailErrorMessage(email: String) =
     if (email.isEmpty()) "Email field is required." else "Email $email is invalid."
 
 private fun isPasswordValid(password: String): Boolean =
-    password.length >= 8
+    password.length >= 8 && Pattern.matches(PASSWORD, password)
 
 private fun passwordErrorMessage(password: String) =
-    if (password.isEmpty()) "Password field is required." else "Password should be at least 8 characters."
+    if (password.isEmpty()) {
+        "Password field is required."
+    } else if (password.length <= 8) {
+        "Password should be at least 8 characters"
+    } else {
+        "Password must contain Uppercase, Lowercase, Digit & Special Character."
+    }
 
+private const val PASSWORD = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{4,}$"

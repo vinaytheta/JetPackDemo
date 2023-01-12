@@ -1,8 +1,6 @@
 package com.example.composenavigation.screens.auth.login
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.composenavigation.utils.EmailState
@@ -21,9 +19,6 @@ class LoginViewModel : ViewModel() {
     private val _passwordState = PasswordState()
     val passwordState: PasswordState = _passwordState
 
-    private var _userStatus = MutableLiveData<String?>()
-    val userStatus : LiveData<String?> = _userStatus
-
     fun onEmailChange(email: String) {
         _emailState.text = email
     }
@@ -34,20 +29,25 @@ class LoginViewModel : ViewModel() {
 
     private val auth: FirebaseAuth = Firebase.auth
 
-    fun signInWithEmailAndPassword(navigateToHome: () -> Unit) {
+    fun signInWithEmailAndPassword(exceptionToast: (String?) -> Unit, navigateToHome: () -> Unit) {
+
         if (validateInputs()) {
+
             viewModelScope.launch {
+
                 try {
                     auth.signInWithEmailAndPassword(emailState.text, passwordState.text)
                         .addOnCompleteListener { task ->
+
                             if (task.isSuccessful) {
                                 Log.d("TAGMain", "signInWithEmailAndPassword: ${task.result}")
                                 navigateToHome()
                             } else {
+
                                 try {
                                     Log.d("TAGMain", "signInWithEmailAndPassword: ${task.result}")
                                 } catch (ex: Exception) {
-                                    _userStatus.value = "User does not exist please Sign up"
+                                    exceptionToast("User does not exist please Sign up")
                                     Log.d(
                                         "TAGMain",
                                         "signInWithEmailAndPasswordException:${ex.localizedMessage} "

@@ -1,5 +1,6 @@
 package com.example.composenavigation.screens.auth.signup
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,8 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -31,21 +34,24 @@ import com.example.composenavigation.navigation.graphs.Graph
 import com.example.composenavigation.navigation.navigateTo
 
 @Composable
-fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hiltViewModel()) {
-
+fun SignUpScreen(
+    navController: NavController,
+    viewModel: SignUpViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .background(
-                Color.LightGray
+                Color.Cyan
             )
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
 
             AuthHeader(
                 title = "Create account,",
-                painterResource = R.drawable.bg_login_head
+                painterResource = R.drawable.bg_login_header
             )
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -53,8 +59,10 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 20.dp, start = 40.dp,
-                        end = 40.dp, bottom = 60.dp),
+                    .padding(
+                        top = 20.dp, start = 40.dp,
+                        end = 40.dp, bottom = 60.dp
+                    ),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -72,7 +80,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                 TextFieldWithError(
                     label = "Email",
                     value = viewModel.emailState.text,
-                    keyboardType = KeyboardType.Email,
+                    keyboardType = KeyboardType.Email, imeAction = ImeAction.Next,
                     isError = viewModel.emailState.error != null,
                     errorMessage = viewModel.emailState.error,
                     onValueChange = {
@@ -86,7 +94,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                 TextFieldWithError(
                     label = "Password",
                     value = viewModel.passwordState.text,
-                    keyboardType = KeyboardType.Password,
+                    keyboardType = KeyboardType.Password, imeAction = ImeAction.Next,
                     isError = viewModel.passwordState.error != null,
                     errorMessage = viewModel.passwordState.error,
                     onValueChange = {
@@ -114,6 +122,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                     keyboardType = KeyboardType.Password,
                     isError = viewModel.confirmPasswordState.error != null,
                     errorMessage = viewModel.confirmPasswordState.error,
+                    imeAction = ImeAction.Done,
                     onValueChange = {
                         viewModel.onConfirmPasswordChange(it)
                         viewModel.confirmPasswordState.validate()
@@ -127,7 +136,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         IconButton(onClick = {
                             confirmPasswordVisible.value = !confirmPasswordVisible.value
                         }) {
-                           Icon(imageVector = eyeIcon, contentDescription = contentDescription)
+                            Icon(imageVector = eyeIcon, contentDescription = contentDescription)
                         }
                     },
                     visualTransformation = if (confirmPasswordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
@@ -135,14 +144,12 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-//                if (signupState.error.isNotBlank())
-//                    ErrorText(signupState.error)
-
                 Button(modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults
-                        .buttonColors(containerColor = Color.Gray),
+                    colors = ButtonDefaults.buttonColors(Color.DarkGray),
                     onClick = {
-                        viewModel.createUserWithEmailAndPassword {
+                        viewModel.createUserWithEmailAndPassword({ toastText ->
+                            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
+                        }) {
                             navigateTo(
                                 navController,
                                 Graph.HOME,
@@ -150,23 +157,29 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                             )
                         }
                     }) {
-                    Text(text = "Sign up",
-                        color = Color.Black)
+                    Text(
+                        text = "Sign up",
+                        color = Color.White
+                    )
                 }
             }
         }
 
         val annotatedText = buildAnnotatedString {
-            withStyle(style =
-            SpanStyle(color = Color.Gray)) { append("Already have account? ") }
+            withStyle(
+                style =
+                SpanStyle(color = Color.Gray)
+            ) { append("Already have account? ") }
 
             pushStringAnnotation(
                 tag = "Login",
                 annotation = "Login"
             )
 
-            withStyle(style =
-            SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+            withStyle(
+                style =
+                SpanStyle(color = MaterialTheme.colorScheme.primary)
+            ) {
                 append("Login")
             }
             withStyle(style = SpanStyle(color = Color.Gray)) { append(".") }

@@ -31,7 +31,7 @@ fun SettingsScreen(navController: NavController) {
             Button(modifier = Modifier
                 .fillMaxWidth()
                 .padding(40.dp),
-                colors = ButtonDefaults.buttonColors(contentColor = Color.Gray),
+                colors = ButtonDefaults.buttonColors(Color.DarkGray),
                 onClick = {
                     FirebaseAuth.getInstance().signOut()
                     navController.navigate(AuthScreen.Login.route) {
@@ -43,7 +43,7 @@ fun SettingsScreen(navController: NavController) {
                 }) {
                 Text(
                     text = "Sign Out",
-                    color = Color.Black
+                    color = Color.White
                 )
             }
 

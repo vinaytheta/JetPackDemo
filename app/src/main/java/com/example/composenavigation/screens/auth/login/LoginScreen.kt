@@ -13,7 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonDefaults.buttonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,8 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.*
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -46,7 +46,6 @@ fun LoginScreen(
     navController: NavController = rememberNavController(),
     viewModel: LoginViewModel = hiltViewModel()
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
 
     LogInUi(navController = navController,
@@ -63,12 +62,9 @@ fun LoginScreen(
             viewModel.passwordState.validate()
         }
     ) {
-        viewModel.userStatus.observe(lifecycleOwner) { status ->
-            status?.let {
-                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-            }
-        }
-        viewModel.signInWithEmailAndPassword {
+        viewModel.signInWithEmailAndPassword({ toastText ->
+            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
+        }) {
             navController.navigate(Graph.HOME) {
                 popUpTo(Graph.AUTHENTICATION) {
                     inclusive = true
@@ -95,13 +91,13 @@ fun LogInUi(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .background(
-                Color.LightGray
+                Color.Cyan
             )
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
 
             AuthHeader(
-                title = "Log in", painterResource = R.drawable.bg_login_head
+                title = "Log in", painterResource = R.drawable.bg_login_header
             )
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -126,6 +122,7 @@ fun LogInUi(
                     keyboardType = KeyboardType.Email,
                     isError = emailError != null,
                     errorMessage = emailError,
+                    imeAction = ImeAction.Next,
                     onValueChange = onEmailChanged
                 )
 
@@ -135,6 +132,7 @@ fun LogInUi(
                     label = "Password",
                     value = password,
                     keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done,
                     isError = passwordError != null,
                     errorMessage = passwordError,
                     onValueChange = onPasswordChanged,
@@ -156,12 +154,11 @@ fun LogInUi(
                 Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.End) {
 
                     Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(contentColor = Color.Gray),
+                        modifier = Modifier.fillMaxWidth(), colors = buttonColors(Color.DarkGray),
                         onClick = onLogInClick,
                     ) {
                         Text(
-                            text = "Log in", color = Color.Black
+                            text = "Log in", color = Color.White
                         )
                     }
                     Spacer(modifier = Modifier.height(5.dp))
