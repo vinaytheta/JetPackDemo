@@ -60,7 +60,8 @@ fun TextFieldWithError(
     keyboardType: KeyboardType,
     isError: Boolean = false,
     errorMessage: String? = "",
-    onValueChange: (String) -> Unit, imeAction: ImeAction,
+    onValueChange: (String) -> Unit,
+    imeAction: ImeAction,
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
@@ -71,7 +72,7 @@ fun TextFieldWithError(
             value = value,
             onValueChange = { onValueChange(it) },
             isError = isError,
-            keyboardOptions = KeyboardOptions(keyboardType = keyboardType).copy(imeAction = imeAction),
+           keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             colors = TextFieldDefaults.textFieldColors(
                 Color.DarkGray
             ),

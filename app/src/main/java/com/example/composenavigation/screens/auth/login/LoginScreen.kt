@@ -203,7 +203,13 @@ fun LogInUi(
                     tag = "SignUp",// tag which you used in the buildAnnotatedString
                     start = offset, end = offset
                 ).firstOrNull()?.let {
-                    navigateTo(navController, AuthScreen.SignUp.route, true)
+                    navController.navigate(AuthScreen.SignUp.route) {
+                        popUpTo(AuthScreen.SignUp.route) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+
                 }
             })
     }

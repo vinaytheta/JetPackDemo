@@ -1,12 +1,14 @@
 package com.example.composenavigation.screens.auth.signup
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.launch
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,9 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,7 +40,13 @@ import com.example.composenavigation.R
 import com.example.composenavigation.components.AuthHeader
 import com.example.composenavigation.components.TextFieldWithError
 import com.example.composenavigation.navigation.graphs.Graph
+import com.example.composenavigation.utils.PhotosOrGalleryDialog
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.accompanist.permissions.shouldShowRationale
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun SignUpScreen(
     navController: NavController, viewModel: SignUpViewModel = hiltViewModel()
@@ -50,7 +56,10 @@ fun SignUpScreen(
     val myImage: Bitmap? =
         BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.ic_person)
     val result = remember {
-        mutableStateOf<Bitmap?>(myImage)
+        mutableStateOf(myImage)
+    }
+    var requestCameraPermission by remember {
+        mutableStateOf(false)
     }
     val loadImage =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
@@ -58,7 +67,8 @@ fun SignUpScreen(
         }
 
 
-    SignUpUi(navController = navController,
+    SignUpUi(
+        navController = navController,
         email = viewModel.emailState.text,
         emailError = viewModel.emailState.error,
         password = viewModel.passwordState.text,
@@ -76,9 +86,7 @@ fun SignUpScreen(
             viewModel.onConfirmPasswordChange(it)
             viewModel.confirmPasswordState.validate()
         },
-        onProfileImageClick = {
-            loadImage.launch()
-        }) {
+    ) {
 
         viewModel.createUserWithEmailAndPassword({
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -93,6 +101,8 @@ fun SignUpScreen(
     }
 }
 
+@SuppressLint("PermissionLaunchedDuringComposition")
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun SignUpUi(
     navController: NavController = rememberNavController(),
@@ -104,9 +114,21 @@ fun SignUpUi(
     onPasswordChanged: (String) -> Unit = {},
     confirmPassword: String = "Password",
     onConfirmPasswordChanged: (String) -> Unit = {},
-    onProfileImageClick: () -> Unit = {},
     onSignUpClick: () -> Unit = {}
 ) {
+
+    var showCameraDialog by remember {
+        mutableStateOf(false)
+    }
+
+    val permissions = listOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+    )
+
+    val multiplePermissionsState = rememberMultiplePermissionsState(permissions)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -132,8 +154,46 @@ fun SignUpUi(
                     .background(color = Color.DarkGray)
                     .align(alignment = Alignment.CenterHorizontally)
                     .clickable {
-                        onProfileImageClick()
+
+                        multiplePermissionsState.launchMultiplePermissionRequest()
+                        multiplePermissionsState.permissions.forEach { perm ->
+                            when (perm.permission) {
+                                Manifest.permission.CAMERA -> {
+                                    when {
+                                        perm.status.isGranted -> {
+                                            Log.d("TAGPermission", "Camera permission accepted")
+                                        }
+                                        perm.status.shouldShowRationale -> {
+                                            Log.d(
+                                                "TAGPermission", "Camera permission is needed" +
+                                                        "to access the camera"
+                                            )
+                                        }
+                                    }
+                                }
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
+                                    when {
+                                        perm.status.isGranted -> {
+                                            Log.d("TAGPermission", "Gallery permission accepted")
+                                        }
+                                        perm.status.shouldShowRationale -> {
+                                            Log.d(
+                                                "TAGPermission", "Gallery permission is needed" +
+                                                        "to access the camera"
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (multiplePermissionsState.allPermissionsGranted) {
+                            showCameraDialog = true
+//                            PhotosOrGalleryDialog()
+                            Log.d("TAGPermission", "SignUpUi: All Granted ")
+                        }
+
                     })
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -143,6 +203,7 @@ fun SignUpUi(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
                 val passwordVisible = remember {
                     mutableStateOf(false)
                 }
@@ -168,7 +229,8 @@ fun SignUpUi(
                 TextFieldWithError(
                     label = "Password",
                     value = password,
-                    keyboardType = KeyboardType.Password, imeAction = ImeAction.Next,
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Next,
                     isError = passwordError != null,
                     errorMessage = passwordError,
                     onValueChange = onPasswordChanged,
@@ -242,6 +304,7 @@ fun SignUpUi(
             // when pop is called it means the end of annotation with current tag
             pop()
         }
+
         ClickableText(modifier = Modifier
             .align(Alignment.BottomCenter)
             .padding(20.dp),
@@ -254,6 +317,10 @@ fun SignUpUi(
                     navController.popBackStack()
                 }
             })
+    }
+    if (showCameraDialog) {
+        PhotosOrGalleryDialog()
+        showCameraDialog= false
     }
 }
 
