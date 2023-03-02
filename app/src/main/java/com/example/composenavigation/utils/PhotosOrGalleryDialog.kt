@@ -10,61 +10,65 @@ import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 
 @Composable
-fun PhotosOrGalleryDialog() {
+fun PhotosOrGalleryDialog(
+    onDismissRequest: () -> Unit = {},
+    onCameraButtonClick: () -> Unit = {},
+    onGalleryButtonClick: () -> Unit = {}
+) {
 
-    var dialogOpen by remember {
+    val dialogOpen by remember {
         mutableStateOf(true)
     }
 
     if (dialogOpen) {
         AlertDialog(
-            onDismissRequest = {
-                // Dismiss the dialog when the user clicks outside the dialog or on the back
-                // button. If you want to disable that functionality,
-                // simply leave this block empty.
-                dialogOpen = false
-            },
+            onDismissRequest = { onDismissRequest() },
             buttons = {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color.Cyan),
+                        .background(Color.Cyan)
+                        .padding(bottom = 20.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
 
                     Button(colors = ButtonDefaults.buttonColors(Color.DarkGray),
                         onClick = {
-                            dialogOpen = false
+                            onCameraButtonClick()
                         }) {
                         Text(text = "Camera", color = Color.White)
                     }
 
                     Button(colors = ButtonDefaults.buttonColors(Color.DarkGray),
                         onClick = {
-                        dialogOpen = false
-                    }) {
+                            onGalleryButtonClick()
+                        }) {
                         Text(text = "Gallery", color = Color.White)
                     }
 
                 }
             },
             title = {
-                Text(text = "Choose an option", modifier = Modifier.padding(vertical = 20.dp))
+                Text(
+                    text = "Choose an option",
+                    modifier = Modifier.padding(vertical = 20.dp)
+                )
             },
             modifier = Modifier // Set the width and padding
-                .fillMaxWidth()
-                .padding(32.dp),
+                .fillMaxWidth(),
             shape = RoundedCornerShape(5.dp),
             backgroundColor = Color.Cyan,
             properties = DialogProperties(

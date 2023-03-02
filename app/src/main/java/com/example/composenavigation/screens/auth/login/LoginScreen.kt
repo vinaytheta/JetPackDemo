@@ -43,7 +43,7 @@ import com.example.composenavigation.ui.theme.ComposeNavigationTheme
 
 @Composable
 fun LoginScreen(
-    navController: NavController = rememberNavController(),
+    navController: NavController,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current

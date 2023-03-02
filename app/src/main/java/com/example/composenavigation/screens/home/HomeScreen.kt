@@ -37,7 +37,7 @@ fun BottomHomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
             Column(modifier = Modifier.padding(12.dp)) {
                 LazyColumn {
                     items(items = questions) { question ->
-                        MovieRow(question = question.question, answer = question.answer)
+                        QuestionRow(question = question.question, answer = question.answer)
                     }
                 }
             }
@@ -46,7 +46,7 @@ fun BottomHomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
 }
 
 @Composable
-fun MovieRow(question: String, answer: String) {
+fun QuestionRow(question: String, answer: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()

@@ -72,7 +72,7 @@ fun TextFieldWithError(
             value = value,
             onValueChange = { onValueChange(it) },
             isError = isError,
-           keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+           keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
             colors = TextFieldDefaults.textFieldColors(
                 Color.DarkGray
             ),

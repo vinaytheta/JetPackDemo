@@ -46,7 +46,6 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.shouldShowRationale
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun SignUpScreen(
     navController: NavController, viewModel: SignUpViewModel = hiltViewModel()
@@ -58,13 +57,9 @@ fun SignUpScreen(
     val result = remember {
         mutableStateOf(myImage)
     }
-    var requestCameraPermission by remember {
-        mutableStateOf(false)
+    rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
+        result.value = it
     }
-    val loadImage =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
-            result.value = it
-        }
 
 
     SignUpUi(
@@ -187,12 +182,17 @@ fun SignUpUi(
                             }
                         }
                         if (multiplePermissionsState.allPermissionsGranted) {
-                            showCameraDialog = true
-//                            PhotosOrGalleryDialog()
+                            showCameraDialog = !showCameraDialog
                             Log.d("TAGPermission", "SignUpUi: All Granted ")
                         }
-
                     })
+            LaunchedEffect(key1 = multiplePermissionsState.allPermissionsGranted) {
+                if (multiplePermissionsState.allPermissionsGranted) {
+                    showCameraDialog = !showCameraDialog
+                    Log.d("TAGPermission", "SignUpUi: All Granted ")
+                }
+            }
+
 
             Column(
                 modifier = Modifier
@@ -319,8 +319,16 @@ fun SignUpUi(
             })
     }
     if (showCameraDialog) {
-        PhotosOrGalleryDialog()
-        showCameraDialog= false
+        PhotosOrGalleryDialog(onDismissRequest = {
+            showCameraDialog = !showCameraDialog
+        },
+            onCameraButtonClick = {
+                showCameraDialog = !showCameraDialog
+
+            },
+            onGalleryButtonClick = {
+                showCameraDialog = !showCameraDialog
+            })
     }
 }
 
